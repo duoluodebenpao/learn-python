@@ -12,8 +12,8 @@ import os
 from datetime import datetime, timedelta
 
 
-def get_logger(the_level=logging.INFO, the_filename="./python_default_log", the_filemode="a",
-               the_format='%(asctime)s-%(filename)s[line:%(lineno)d]-%(levelname)s: %(message)s'):
+def get_file_logger(the_level=logging.INFO, the_filename="./logs/python_default_log", the_filemode="a",
+                    the_format='%(asctime)s-%(filename)s[line:%(lineno)d]-%(levelname)s: %(message)s'):
     """python的log日志，打印文件也打印到控制台"""
     logger = logging.getLogger()
     logger.setLevel(the_level)
@@ -31,8 +31,6 @@ def get_logger(the_level=logging.INFO, the_filename="./python_default_log", the_
 
 def fun_run_time(function):
     # 打印程序执行时间
-    logger = get_logger()
-
     def fun(command):
         run_flag = False  # 标记作业是否正常执行
         start_time = datetime.now()
@@ -44,10 +42,10 @@ def fun_run_time(function):
             # 统计单个作业运行时长
             end_time = datetime.now()
             run_time = (end_time - start_time).total_seconds()
-            logger.info("[{}] run status is [{}]".format(command, run_result))
-            logger.info(
+            print("[{}] run status is [{}]".format(command, run_result))
+            print(
                 "start time:[{}]  end time:[{}]  during:[{}] second".format(start_time.strftime("%Y%m%d %H:%M:%S"),
-                                                                            end_time.strftime(start_time), run_time))
+                                                                            end_time.strftime("%Y%m%d %H:%M:%S"), run_time))
 
     return fun
 
@@ -75,3 +73,7 @@ def cmd_exec(cmd):
         print("success... status [{}]  cmd [{}]".format(status, cmd))
     else:
         print("fault... status [{}]  cmd [{}]".format(status, cmd))
+
+
+if __name__ == '__main__':
+    cmd_exec("dir ./")
