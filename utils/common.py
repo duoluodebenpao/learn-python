@@ -9,7 +9,23 @@
 
 import logging
 import os
+import sys
+
+sys.path.insert(0, os.getcwd())
 from datetime import datetime, timedelta
+
+
+def get_var_from_env(key="env"):
+    """系统的环境是（key，vlaue）格式的变量，从环境中获取对应key的参数"""
+    try:
+        value = os.environ.get(key)
+    except Exception:
+        value = os.environ.get(key.upper())
+    if value:
+        print("env has [{}]'s param , value is [{}]".format(key, value))
+    else:
+        print("env don't have [{}]'s param , value is None".format(key))
+    return value
 
 
 def get_file_logger(the_level=logging.INFO, the_filename="./logs/python_default_log", the_filemode="a",
@@ -29,7 +45,7 @@ def get_file_logger(the_level=logging.INFO, the_filename="./logs/python_default_
     return logger
 
 
-def fun_run_time(function):
+def run_time(function):
     # 打印程序执行时间
     def fun(command):
         run_flag = False  # 标记作业是否正常执行
@@ -45,12 +61,13 @@ def fun_run_time(function):
             print("[{}] run status is [{}]".format(command, run_result))
             print(
                 "start time:[{}]  end time:[{}]  during:[{}] second".format(start_time.strftime("%Y%m%d %H:%M:%S"),
-                                                                            end_time.strftime("%Y%m%d %H:%M:%S"), run_time))
+                                                                            end_time.strftime("%Y%m%d %H:%M:%S"),
+                                                                            run_time))
 
     return fun
 
 
-def get_str_times(str_start_time, str_end_str, str_parse="%Y-%m-%d %H:%M:%S", hours=24):
+def get_str_time_list(str_start_time, str_end_str, str_parse="%Y-%m-%d %H:%M:%S", hours=24):
     """传入 str_start_time 开始时间的字符串，str_end_str 结束时间的字符串，str_parse 字符串格式， hours 步长，   返回此时间范围内的日期列表 """
     str_times = []
     str_times.append(str_start_time)
@@ -65,7 +82,7 @@ def get_str_times(str_start_time, str_end_str, str_parse="%Y-%m-%d %H:%M:%S", ho
     return str_time
 
 
-@fun_run_time
+@run_time
 def cmd_exec(cmd):
     print("cmd [{}]".format(cmd))
     status = os.system(cmd)
