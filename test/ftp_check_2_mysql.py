@@ -12,6 +12,8 @@ from logging.handlers import TimedRotatingFileHandler
 RECEIVE_FTP_HOUR_STAT_URL = 'http://172.16.3.87:7006/datachainstat/ftp_upload'
 
 
+
+
 def init_logger(level, log_file):
     log_formatter = logging.Formatter("%(asctime)s[%(levelname)s][%(module)s]%(lineno)d %(message)s")
     logger = logging.getLogger()
