@@ -46,7 +46,6 @@ import os
 def get_logger(level=logging.INFO, file_path="{}/default.log".format(os.getcwd()), mode="a", encoding="utf-8",
                log_format='%(asctime)s-%(filename)s[line:%(lineno)d]-%(levelname)s: %(message)s'):
     """python的log日志，打印文件也打印到控制台"""
-    os.pat
     if not os.path.exists(file_path):
         with open(file_path, "w+") as f:
             print("[{}] is not exists, so create file".format(file_path))
@@ -78,5 +77,4 @@ def main():
 
 
 if __name__ == "__main__":
-    print(os.getcwd())
     main()

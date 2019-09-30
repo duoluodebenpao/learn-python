@@ -7,7 +7,6 @@
 @desc:
 """
 
-import logging
 import os
 import sys
 
@@ -26,23 +25,6 @@ def get_var_from_env(key="env"):
     else:
         print("env don't have [{}]'s param , value is None".format(key))
     return value
-
-
-def get_file_logger(the_level=logging.INFO, the_filename="./logs/python_default_log", the_filemode="a",
-                    the_format='%(asctime)s-%(filename)s[line:%(lineno)d]-%(levelname)s: %(message)s'):
-    """python的log日志，打印文件也打印到控制台"""
-    logger = logging.getLogger()
-    logger.setLevel(the_level)
-    fh = logging.FileHandler(the_filename, mode=the_filemode)
-    fh.setLevel(the_level)
-    ch = logging.StreamHandler()
-    ch.setLevel(the_level)
-    formatter = logging.Formatter(the_format)
-    fh.setFormatter(formatter)
-    ch.setFormatter(formatter)
-    logger.addHandler(fh)
-    logger.addHandler(ch)
-    return logger
 
 
 def run_time(function):
