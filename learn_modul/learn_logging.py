@@ -48,9 +48,9 @@ def get_logger(level=logging.INFO, file_path="{}/default.log".format(os.getcwd()
     """python的log日志，打印文件也打印到控制台"""
     if not os.path.exists(file_path):
         with open(file_path, "w+") as f:
-            print("[{}] is not exists, so create file".format(file_path))
+            print("log file [{}] is not exists, so create file".format(file_path))
     else:
-        print("[{}] is exists".format(file_path))
+        print("log file [{}] is exists".format(file_path))
 
     logger = logging.getLogger()
     logger.setLevel(level)
