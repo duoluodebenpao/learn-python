@@ -8,8 +8,12 @@ desc:
 
 """
 
-
+import logging
 def main():
+    strip = "CPU(s):                48 ".split(":")[1].strip()
+    print("[{}]".format(strip))
+
+    logger = logging.getLogger()
     aa = {}
     aa["a"] = 11
     aa["b"] = 22

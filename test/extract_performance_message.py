@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin python
 # encoding: utf-8
 """
 @author: fzj 
@@ -12,7 +12,7 @@ import datetime
 import logging
 import os
 import subprocess
-
+import requests
 
 def get_logger(level=logging.INFO, file_path="{}/default.log".format(os.getcwd()), mode="a", encoding="utf-8",
                log_format='%(asctime)s-%(filename)s[line:%(lineno)d]-%(levelname)s: %(message)s'):
@@ -37,20 +37,20 @@ def get_logger(level=logging.INFO, file_path="{}/default.log".format(os.getcwd()
     return logger
 
 
-logger = get_logger()
+logger = logging.getLogger()
 
 
 def record_process_time(process_desc):
     """记录程序执行时间工具"""
 
     def wrapper(fun):
-        def inner(fun_params):
+        def inner():
             run_flag = False  # 标记作业是否正常执行
             start_time = datetime.datetime.now()
             logger.info("process [{}] start time:[{}]".format(process_desc, start_time.strftime("%Y%m%d %H:%M:%S")))
 
             try:
-                fun(fun_params)
+                fun()
                 run_flag = True
             finally:
                 process_status = "success" if run_flag else "fault"
@@ -79,42 +79,57 @@ def import_model():
 def check_output(cmd):
     """用于python2.7 版本"""
     try:
-        print("cmd [{}]".format(cmd))
+        logger.info("cmd [{}]".format(cmd))
         output = subprocess.check_output(cmd, shell=True)
-        print("run [{}] is success".format(cmd))
+        logger.info("run [{}] is success, output is [{}]".format(cmd, output))
         return output
     except Exception:
-        print("run [{}] is faild".format(cmd))
+        logger.info("run [{}] is faild".format(cmd))
 
-def get_disk_message(data_map):
+def get_disk_message(message_map):
     cmd = "df -m / |grep /"
     output = check_output(cmd)
     logging.info(output)
     words = str(output).split()
 
-    data_map["disk_all"] = words[1]
-    data_map["disk_used"] = words[2]
-    data_map["disk_available"] = words[3]
-    data_map["disk_used_percent"] = words[4]
+    message_map["disk_total"] = words[1]
+    message_map["disk_used"] = words[2]
+    message_map["disk_available"] = words[3]
+
 
 def get_memery_message(data_map):
-    cmd = "free -c 5 -s 2 |grep Mem:"
+    cmd = "free -c 5 -s 2 -m |grep '^Mem:'"
     output = check_output(cmd)
+    for line in str(output).split("\n"):
+        words = line.split(":")[1].split()
 
-def get_cpu_message(data_map):
+
+
+def get_cpu_message(message_map):
     # vmstat    https://zhangnq.com/1925.html
-    cmd = "vmstat 2  2|grep '[0-9]'"   #每3秒采集一次，共采集5次， 同时只 显示出数字开头的行
+    # cmd = "vmstat 2  2|grep '[0-9]'"   #每3秒采集一次，共采集5次， 同时只 显示出数字开头的行
 
-    # sar 命令需要linux安装
-    cmd = "sar -u 1 5 |grep Average:"    #每秒采集一次，共采集5次
+    cmd = "lscpu  |grep '^CPU(s):'"
     output = check_output(cmd)
+    cpu_total = str(output).split(":")[1].strip()
+    message_map["cpu_total"] = cpu_total
+
+
 
 def get_memery_cpu_message(data_map):
     # vmstat    https://zhangnq.com/1925.html
-    cmd = "vmstat 3  5|grep '[0-9]'"   #每3秒采集一次，共采集5次， 同时只 显示出数字开头的行
-    cmd = "top -n 1 |head 5"
+    cmd = "top -bn 1 |grep -E  '^(%Cpu)|(KiB Mem)' "
 
+    output = check_output(cmd)
+    lines = str(output).split("\n")
+    logger.info(lines[0])
+    logger.info(lines[1])
 
+    for word in lines[0].split(":", 2)[1].split(","):
+        print("cpu =>[{}]".format(word))
+
+    for word in lines[1].split(":",2)[1].split(","):
+        print("memory =>[{}]".format(word))
 
 
 def parse_argus():
@@ -123,30 +138,34 @@ def parse_argus():
 
     return args.parse_args()
 
+def get_message(message_map):
+    get_disk_message(message_map)
+    get_memery_cpu_message(message_map)
 
 
 
-def send_message():
+def send_message(message_map):
     """将采集到的数据发送出去"""
     pass
 
 @record_process_time(__file__)
 def main():
+    message_map = {}
+
     # 1. 解析参数
     argus = parse_argus()
-    logger.info(argus.url)
+    logger = get_logger()
 
     # 2. 获取性能数据 (使用 psutil 模块采集机器信息   或者 使用linux的命令采集信息)
-    data_map = {}
-    get_disk_message(data_map)
+    get_message(message_map)
 
-    for key,value in data_map.items():
-        logger.info("{} : {}".format(key, value))
+    for key,value in message_map.items():
+        logger.info("message => [{}] : [{}]".format(key, value))
 
 
 
     # 3. 将数据上报
-    send_message()
+    send_message(message_map)
 
 
 
