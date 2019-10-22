@@ -8,18 +8,17 @@ desc:
 
 """
 
-import logging
+import requests
+
 def main():
-    strip = "CPU(s):                48 ".split(":")[1].strip()
-    print("[{}]".format(strip))
 
-    logger = logging.getLogger()
-    aa = {}
-    aa["a"] = 11
-    aa["b"] = 22
-
-    for key,value in aa.items():
-        print(key,value)
+    url = "http://172.16.3.87:7006/datachainstat/ftp_upload"
+    images_id = "b18368d1af454038987d45aab60aba87"
+    url = "http://172.17.7.24:9017/images/{}".format(images_id)
+    print(url)
+    r = requests.get(url)
+    print(r.url)
+    print(r.content)
 
 
 if __name__ == "__main__":

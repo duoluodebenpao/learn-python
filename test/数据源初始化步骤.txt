@@ -1,0 +1,42 @@
+
+
+################## 给logic_table 增加唯一约束
+
+1. 查看是否存在 table_name 重复的数据
+select  id,table_name  from  logic_table group by table_name   having count(1) > 1;
+
+2. 添加唯一约束语句
+ALTER TABLE `logic_table` ADD UNIQUE index_name ( `table_name`);
+
+3. 查看约束是否添加成功
+desc logic_table;
+
+
+################### 初始化数据源 
+
+1.  在前端的执勤目录下创建全局名称唯一的目录， 比如目录名称为 ‘lvwan’ 
+
+2.  使用sql获取刚才新创建目录的id值，之后才能去 logic_table 中更新值 
+select  id,db_name  from  logic_db  where  db_level=3  and  db_name = 'lvwan';
+
+3. 将历史的标准全部归属到未分类目录下  
+
+更改三级目录下的数据源位置：
+UPDATE  logic_table   set  logic_db_id=  目录id
+where logic_db_id  in  (
+select  b.id from  (select  id  from   logic_db   where parent_id=1 ) a left join  logic_db b on a.id=b.parent_id and b.id is not null 
+);
+
+更改二级目录下的数据源位置：
+UPDATE  logic_table   set  logic_db_id=80 
+where logic_db_id  in  (
+select  id from  logic_db   where parent_id=1 and id is not null 
+);
+
+
+4. 给目录改名称， 改为 ‘待分类’
+update logic_db  set  db_name='未分类' where  id= 目录id ;
+
+
+
+

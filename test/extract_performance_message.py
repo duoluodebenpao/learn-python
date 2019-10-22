@@ -7,10 +7,8 @@
 @desc: 采集服务器上的cpu，内存，硬盘等数据，然后上报
 
 必填参数：
-        'token': '1234567890',
-        'ip': "",
-        'data_origin_id': data_origin_id,
-        'data_origin_name': data_origin_name,
+        'token': '1234567890',--------------------
+        'ip': "",  ----------------
         'stat_time': stat_time,
         'busi_begin_time': busi_begin_time,
         'busi_end_time': busi_end_time,
@@ -20,8 +18,10 @@
         'disk_total': disk_total,
         'disk_ftp_use': disk_ftp_use,
         'disk_ftp_use_percent': disk_ftp_use_percent,
-        'company_id': 1,
-        'company_name': "绿湾",
+
+
+        'company_id': 1,      ---------------
+        'company_name': "绿湾",     --------------------
 
 
 """
