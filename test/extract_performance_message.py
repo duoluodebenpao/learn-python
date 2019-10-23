@@ -6,22 +6,12 @@
 @time: 2019/10/9 15:43
 @desc: 采集服务器上的cpu，内存，硬盘等数据，然后上报
 
-必填参数：
-        'token': '1234567890',--------------------
-        'ip': "",  ----------------
-        'stat_time': stat_time,
-        'busi_begin_time': busi_begin_time,
-        'busi_end_time': busi_end_time,
-        'ftp_update_time': ftp_update_time,
-        'file_count': file_count,
-        'file_size': file_size,
-        'disk_total': disk_total,
-        'disk_ftp_use': disk_ftp_use,
-        'disk_ftp_use_percent': disk_ftp_use_percent,
+@使用方式：
+python   脚本名    --help
 
 
-        'company_id': 1,      ---------------
-        'company_name': "绿湾",     --------------------
+示例：
+python extract_performance_message.py  --url  http://172.17.12.7:9017/storage/performance_info  --companyName  lvwan    --ipAddress  172.17.12.7    --clusterName hdfs  --logPath  ./mylog
 
 
 """
@@ -31,9 +21,9 @@ import datetime
 import logging
 import os
 import subprocess
+import time
 
-
-# import requests
+import requests
 
 
 def get_logger(level=logging.INFO, file_path="{}/default.log".format(os.getcwd()), mode="a", encoding="utf-8",
@@ -104,7 +94,7 @@ def check_output(cmd):
     try:
         logger.info("cmd [{}]".format(cmd))
         output = str(subprocess.check_output(cmd, shell=True)).strip()
-        logger.info("cmd [{}] is success, output is /n [{}]".format(cmd, output))
+        logger.info("cmd [{}] is success, output is \n [{}]".format(cmd, output))
         return str(output)
     except Exception:
         logger.error("cmd [{}] is faild".format(cmd))
@@ -113,11 +103,10 @@ def check_output(cmd):
 def get_disk_message(message_map):
     cmd = "df -m / |grep /"
     output = check_output(cmd)
-    logger.info(output)
     words = output.split()
-    message_map["disk_total"] = words[1]
-    message_map["disk_used"] = words[2]
-    message_map["disk_available"] = words[3]
+    message_map["storageTotal"] = words[1]
+    message_map["storageUsed"] = words[2]
+    message_map["diskAvailable"] = words[3]
 
 
 def get_memery_message(message_map):
@@ -136,9 +125,10 @@ def get_memery_message(message_map):
         memory_used += int(words[1])
         memory_free += int(words[2])
 
-    message_map["memory_total"] = memory_total // count
-    message_map["memory_used"] = memory_used // count
-    message_map["memory_free"] = memory_free // count
+    message_map["memoryTotal"] = memory_total // count
+    message_map["memoryUsed"] = memory_used // count
+    message_map["memoryFree"] = memory_free // count
+    message_map["memoryPercent"] = round(1.00 * memory_used / memory_total, 2)
 
 
 def get_cpu_message(message_map):
@@ -148,7 +138,7 @@ def get_cpu_message(message_map):
     cmd = "lscpu  |grep '^CPU(s):'"
     output = check_output(cmd)
     cpu_total = output.split(":")[1].strip()
-    message_map["cpu_total"] = cpu_total
+    message_map["cpuTotal"] = cpu_total
 
 
 def get_memery_cpu_message(data_map):
@@ -168,15 +158,20 @@ def get_memery_cpu_message(data_map):
 def parse_argus(message_map):
     """解析参数"""
     args = argparse.ArgumentParser(description="采集服务器上的cpu，内存，硬盘等数据，然后上报")
-    # args.add_argument("--url", required=True, help="上报的url", default="xxx")
-    args.add_argument("--log_path", required=False, help="log文件的路径", default="xxx")
-    args.add_argument("--company_id", required=False, help="公司id", default="company_test")
-    # args.add_argument("--company_name", required=False, help="公司名称", default="")
+    args.add_argument("--url", required=True, help="上报的url路径，格式： http://localhost:9017/storage/performance_info",
+                      default="http://localhost:9017/storage/performance_info")
+    args.add_argument("--companyName", required=True, help="公司名称", default="lvwan")
+    args.add_argument("--clusterName", required=True, help="集群名称,如果多个集群，使用逗号分隔， 例如：hdfs，es")
+    args.add_argument("--ipAddress", required=True, help="机器ip地址")
+    args.add_argument("--logPath", required=False, help="log文件的路径")
     params = args.parse_args()
-    log_path = params.log_path
-    print("input logPath [{}]".format(log_path))
+    log_path = params.logPath
     global logger
-    logger = get_logger(file_path=log_path)
+    if log_path:
+        print("input logPath [{}]".format(log_path))
+        logger = get_logger(file_path=log_path)
+    else:
+        logger = get_logger()
 
     for key, value in params.__dict__.items():
         logger.info("input param [{}]:[{}]".format(key, value))
@@ -197,13 +192,23 @@ def get_message(message_map):
 def send_message(message_map):
     """将采集到的数据发送出去"""
     url = message_map.get("url")
-    # response = requests.post(url, data=message_map)
-    # logger.info("requests.post(url=[{}], data=[{}]) => response [{}]".format(url, message_map, response.text))
+    logger.info("requests.post(url=[{}], json=[{}])".format(url, message_map))
+    r = requests.post(url, json=message_map)
+    logger.info("request status [{}]".format(r.status_code))
+    if r.status_code != 200:
+        return logger.error("发送请求失败")
+    else:
+        logger.info("发送请求成功")
+
+    logger.info("接口返回信息：")
+    logger.info(r.content)
 
 
 @record_process_time(__file__)
 def main():
     message_map = {}
+    message_map["statTime"] = int(time.time() * 1000)
+
     # 1. 解析参数 并 初始化logger
     param = parse_argus(message_map)
 
