@@ -1,5 +1,5 @@
+# -*- coding: utf-8 -*-
 #!/usr/bin python
-# encoding: utf-8
 """
 @author: fzj 
 @license: (C) Copyright 2013-2017

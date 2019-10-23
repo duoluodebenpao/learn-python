@@ -9,15 +9,22 @@ desc:
 """
 
 import requests
+import logging
+
+logger = logging.getLogger()
+
 
 # https://cloud.tencent.com/developer/article/1493120
 
 def main():
-    get = requests.get("http://www.baidu.com")
-    print(get.content)
-    print(get.text)
+    logger.setLevel(logging.DEBUG)
+    r = requests.get("http://www.baidu.com")
+    print(r.encoding)
+    logger.error(r.text)
+    r.encoding = "utf-8"
+    logger.error(r.text)
+    logger.error(r.content.decode("utf-8"))
 
-    pass
 
 
 if __name__ == "__main__":
