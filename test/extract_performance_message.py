@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-#!/usr/bin python
+# !/usr/bin python
 """
 @author: fzj 
 @license: (C) Copyright 2013-2017
@@ -9,11 +9,11 @@
 @使用方式：
 python   脚本名    --help
 
-
 示例：
 python extract_performance_message.py  --url  http://172.17.12.7:9017/storage/performance_info  --companyName  lvwan    --ipAddress  172.17.12.7    --clusterName hdfs  --logPath  ./mylog
 
-
+mysql表中唯一字段：
+`company_id`,`ip_address`,`cluster_name`,`stat_time`
 """
 
 import argparse
@@ -107,6 +107,7 @@ def get_disk_message(message_map):
     message_map["storageTotal"] = words[1]
     message_map["storageUsed"] = words[2]
     message_map["diskAvailable"] = words[3]
+    message_map["storagePercent"] = round(100.00 * float(words[2]) / float(words[1]), 2)
 
 
 def get_memery_message(message_map):
@@ -128,7 +129,7 @@ def get_memery_message(message_map):
     message_map["memoryTotal"] = memory_total // count
     message_map["memoryUsed"] = memory_used // count
     message_map["memoryFree"] = memory_free // count
-    message_map["memoryPercent"] = round(1.00 * memory_used / memory_total, 2)
+    message_map["memoryPercent"] = round(100.00 * memory_used / memory_total, 2)
 
 
 def get_cpu_message(message_map):
@@ -157,9 +158,10 @@ def get_memery_cpu_message(data_map):
 
 def parse_argus(message_map):
     """解析参数"""
-    args = argparse.ArgumentParser(description="采集服务器上的cpu，内存，硬盘等数据，然后上报")
+    args = argparse.ArgumentParser(description="采集服务器上的cpu，内存，硬盘等数据，然后上报 ")
     args.add_argument("--url", required=True, help="上报的url路径，格式： http://localhost:9017/storage/performance_info",
                       default="http://localhost:9017/storage/performance_info")
+    args.add_argument("--companyId", required=True, help="公司id")
     args.add_argument("--companyName", required=True, help="公司名称", default="lvwan")
     args.add_argument("--clusterName", required=True, help="集群名称,如果多个集群，使用逗号分隔， 例如：hdfs，es")
     args.add_argument("--ipAddress", required=True, help="机器ip地址")
@@ -195,13 +197,13 @@ def send_message(message_map):
     logger.info("requests.post(url=[{}], json=[{}])".format(url, message_map))
     r = requests.post(url, json=message_map)
     logger.info("request status [{}]".format(r.status_code))
-    if r.status_code != 200:
-        return logger.error("发送请求失败")
+    if r.status_code == 200:
+        logger.info("send request is success")
     else:
-        logger.info("发送请求成功")
+        logger.error("send request is fault")
 
-    logger.info("接口返回信息：")
-    logger.info(r.content)
+    print(r.text)
+    # logger.info("response message：\n [{}]".format(r.text))
 
 
 @record_process_time(__file__)
@@ -210,7 +212,7 @@ def main():
     message_map["statTime"] = int(time.time() * 1000)
 
     # 1. 解析参数 并 初始化logger
-    param = parse_argus(message_map)
+    parse_argus(message_map)
 
     # 2. 获取性能数据 (使用 psutil 模块采集机器信息   或者 使用linux的命令采集信息)
     get_message(message_map)

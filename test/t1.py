@@ -10,8 +10,11 @@ desc:
 
 import requests
 import datetime
+import logging
 
 def main():
+    logger = logging.getLogger()
+    logger.error("")
     now = datetime.datetime.now()
     print(now.timestamp())
     print(int(now.timestamp()*1000))
