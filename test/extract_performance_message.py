@@ -10,7 +10,7 @@
 python   脚本名    --help
 
 示例：
-python extract_performance_message.py  --url  http://172.17.12.7:9017/storage/performance_info  --companyName  lvwan    --ipAddress  172.17.12.7    --clusterName hdfs  --logPath  ./mylog
+python extract_performance_message.py  --url  http://ip:port/storage/performance_info  --companyName  test    --ipAddress  172.17.12.7    --clusterName hdfs  --logPath  ./mylog
 
 mysql表中唯一字段：
 `company_id`,`ip_address`,`cluster_name`,`stat_time`
@@ -159,19 +159,18 @@ def get_memery_cpu_message(data_map):
 def parse_argus(message_map):
     """解析参数"""
     args = argparse.ArgumentParser(description="采集服务器上的cpu，内存，硬盘等数据，然后上报 ")
-    args.add_argument("--url", required=True, help="上报的url路径，格式： http://localhost:9017/storage/performance_info",
-                      default="http://localhost:9017/storage/performance_info")
+    args.add_argument("--url", required=True, help="上报的url路径，格式： http://ip:port/storage/performance_info")
     args.add_argument("--companyId", required=True, help="公司id")
-    args.add_argument("--companyName", required=True, help="公司名称", default="lvwan")
+    args.add_argument("--companyName", required=True, help="公司名称", default="test")
     args.add_argument("--clusterName", required=True, help="集群名称,如果多个集群，使用逗号分隔， 例如：hdfs，es")
     args.add_argument("--ipAddress", required=True, help="机器ip地址")
-    args.add_argument("--logPath", required=False, help="log文件的路径")
+    args.add_argument("--logFile", required=False, help="log文件的绝对路径")
     params = args.parse_args()
-    log_path = params.logPath
+    log_file = params.logFile
     global logger
-    if log_path:
-        print("input logPath [{}]".format(log_path))
-        logger = get_logger(file_path=log_path)
+    if log_file:
+        print("input logFile [{}]".format(log_file))
+        logger = get_logger(file_path=log_file)
     else:
         logger = get_logger()
 
