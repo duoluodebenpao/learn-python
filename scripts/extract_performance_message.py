@@ -202,7 +202,7 @@ def send_message(message_map):
         logger.error("send request is fault")
 
     print(r.text)
-    # logger.info("response message：\n [{}]".format(r.text))
+    logger.info("response message：\n [{}]".format(r.text),)
 
 
 @record_process_time(__file__)
