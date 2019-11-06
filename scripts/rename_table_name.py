@@ -19,7 +19,7 @@ def showTables(connect):
         print(table, end="\t")
         tables.append(table[0])
     print()
-    cursor.close
+    cursor.close()
     return tables
 
 

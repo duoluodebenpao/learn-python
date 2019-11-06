@@ -43,9 +43,21 @@ import logging
 import os
 
 
+def get_console_logger(level=logging.INFO,
+                       log_format='%(asctime)s-%(filename)s[line:%(lineno)d]-%(levelname)s: %(message)s'):
+    """此logger只会将日志打印到控制台"""
+    logger = logging.getLogger()
+    logger.setLevel(level)
+    ch = logging.StreamHandler()
+    ch.setLevel(level)
+    formatter = logging.Formatter(log_format)
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+    return logger
+
 def get_logger(level=logging.INFO, file_path="{}/default.log".format(os.getcwd()), mode="a", encoding="utf-8",
                log_format='%(asctime)s-%(filename)s[line:%(lineno)d]-%(levelname)s: %(message)s'):
-    """python的log日志，打印文件也打印到控制台"""
+    """此logger会打印文件也打印到控制台"""
     if not os.path.exists(file_path):
         with open(file_path, "w+") as f:
             print("log file [{}] is not exists, so create file".format(file_path))
