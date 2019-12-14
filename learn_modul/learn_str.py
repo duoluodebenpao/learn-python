@@ -9,6 +9,14 @@
 """
 
 
+def strip_str():
+    """字符串的去空白操作  lstrip左侧的空白符去掉  rstrip右侧的空白符去掉    strip两边的空白符去掉"""
+    one = "  abc  "
+    print(one.lstrip())
+    print(one.rstrip())
+    print(one.strip())
+
+
 def contain_str():
     """a字符串是否包含b字符串"""
     one = "abc"
@@ -52,4 +60,5 @@ if __name__ == '__main__':
     split_str()
     build_str()
     practice1()
+    strip_str()
     pass
