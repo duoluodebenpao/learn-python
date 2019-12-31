@@ -78,7 +78,7 @@ def parse_argus(argus_map):
     return params
 
 
-def get_offset(file_path="{}/offset"):
+def get_offset(file_path="./offset"):
     try:
         with open(file_path, "a") as f:
             offset = int(f.readline())
@@ -88,7 +88,7 @@ def get_offset(file_path="{}/offset"):
         return 0
 
 
-def run(conn, table_name, file_path="{}/offset"):
+def run(conn, table_name):
     """将数据库中的基站信息通过web接口获取地理位置"""
     offset = get_offset()
     count = 1000
