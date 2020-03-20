@@ -3,9 +3,8 @@
 """
 @author: fzj
 @license: (C) Copyright 2013-2017, Node Supply Chain Manager Corporation Limited.
-@time: 2019/11/6 11:13
+@time: 20200320 11:13
 @desc: 此脚本用于生成数据仓库中的日期维度表
-
 """
 
 import logging
@@ -63,7 +62,7 @@ def create_table(conn):
 
 
 def insert_date(conn, str_start_time="20100101", str_end_time="20351231", str_parse="%Y%m%d"):
-    insert_sql = "insert into `dim_date` ( `ymd`,`ymd_long_desc`,`ymd_short_desc`, `ymd_dt` ,`ym` ,`y`,`m`,`d`,`w_y`,`w`,`q` ) values   "
+    insert_sql = "insert into `dim_date` ( `ymd`,`ymd_long_desc`,`ymd_short_desc`, `ymd_dt` ,`ym` ,`y`,`m`,`d`,`w_y`,`w`,`q` ) values "
     values = []
     end_time = datetime.strptime(str_end_time, str_parse)
     start_time = datetime.strptime(str_start_time, str_parse)
@@ -83,7 +82,7 @@ def insert_date(conn, str_start_time="20100101", str_end_time="20351231", str_pa
         w_y = isocalendar[1]
         w = isocalendar[2]
         q = (start_time.month - 1) // 3 + 1
-        value = f"('{ymd}', '{ymd_long_desc}','{ymd_short_desc}', '{ymd_dt}', '{ym}', '{y}', '{m}', '{d}', '{w_y}', '{w}', '{q}' )"
+        value = f"('{ymd}', '{ymd_long_desc}','{ymd_short_desc}', '{ymd_dt}', '{ym}', '{y}', '{m}', '{d}', '{w_y}','{w}', '{q}')"
         values.append(value)
         start_time = start_time + timedelta(days=1)
         if len(values) > 1000:
