@@ -62,7 +62,7 @@ def get_str_time_list(str_start_time, str_end_str, str_parse="%Y-%m-%d %H:%M:%S"
             break
         str_times.append(str_time)
         str_start_time = str_time
-    return str_time
+    return str_times
 
 
 @run_time
